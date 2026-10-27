@@ -39,7 +39,6 @@ main{padding:16px 20px 24px;max-width:1600px;margin:auto}.summary{display:grid;g
   </div>
 </header>
 <main>
-  <div class="notice">Estimasi GEX dihitung dari open interest, implied volatility, dan model Black–Scholes menggunakan data publik Deribit. Ini bukan angka resmi Deribit; hasil dapat berbeda dari dashboard yang memakai definisi kontrak/normalisasi lain.</div>
   <section class="summary">
     <div class="metric"><label>BTC SPOT</label><strong id="spot">—</strong><small id="spotSource">BTC index</small></div>
     <div class="metric"><label>NET GAMMA EXPOSURE</label><strong id="net">—</strong><small>USD per 1% move · estimasi</small></div>
@@ -47,7 +46,7 @@ main{padding:16px 20px 24px;max-width:1600px;margin:auto}.summary{display:grid;g
     <div class="metric"><label>PUT GEX</label><strong id="puts">—</strong><small>Gamma negatif</small></div>
   </section>
   <section class="panel">
-    <div class="panel-head"><h2>Gamma Exposure by Strike & Expiration</h2><div class="legend"><span><i class="swatch" style="background:#2c5686"></i>Positive GEX</span><span><i class="swatch" style="background:#793b3d"></i>Negative GEX</span><span>GEX: USD · Net Profile: magnitudo Net GEX per strike</span><button id="copyImage" class="btn" type="button" title="Copy seluruh tabel GEX sebagai gambar">▧ Copy as Image</button></div></div>
+    <div class="panel-head"><h2>Gamma Exposure by Strike & Expiration</h2><div class="legend"><span><i class="swatch" style="width:42px;background:linear-gradient(90deg,#93c5fd,#3b82f6,#1e3a8a)"></i>Positive GEX</span><span><i class="swatch" style="width:42px;background:linear-gradient(90deg,#fca5a5,#ef4444,#7f1d1d)"></i>Negative GEX</span><span>Terang = kecil · Gelap = besar</span><span>GEX: USD · Net Profile: magnitudo Net GEX per strike</span><button id="copyImage" class="btn" type="button" title="Copy seluruh tabel GEX sebagai gambar">▧ Copy as Image</button></div></div>
     <div class="table-wrap"><table id="heatmap"><thead><tr><th>Strike</th></tr></thead><tbody><tr><td class="loading">Mengambil data options dari Deribit…</td></tr></tbody></table></div>
   </section>
   <div class="foot"><span id="updated">Menunggu data pertama…</span><span id="copyStatus" aria-live="polite">Source: wss://www.deribit.com/ws/api/v2 · Read-only public API</span></div>
@@ -178,33 +177,31 @@ function render(){
  }
  const nearestStrike=(v)=>v===null?null:near.reduce((best,k)=>Math.abs(k-v)<Math.abs(best-v)?k:best,near[0]);
  const callRow=nearestStrike(callWall),putRow=nearestStrike(putWall),flipRow=nearestStrike(flip);
- let maxAbs=0, minAbs=Infinity;
- const registerMagnitude=v=>{
-   const a=Math.abs(v);
-   if(a>=50000){maxAbs=Math.max(maxAbs,a);minAbs=Math.min(minAbs,a);}
+ // Skala warna: terang (kecil) -> gelap pekat (besar), linear terhadap nilai terbesar yang terlihat.
+ // Kolom bucket expiry dan kolom Net memakai skala sendiri-sendiri supaya Net (hasil penjumlahan) tidak membuat sel lain pucat.
+ let maxCell=0;
+ for(const k of near) for(const b of buckets){const a=Math.abs(bucketTotals.get(b)?.get(k)||0);if(a>=50000)maxCell=Math.max(maxCell,a);}
+ const GEX_STOPS={
+   pos:[[0,[147,197,253]],[.15,[96,165,250]],[.40,[59,130,246]],[.72,[29,78,216]],[1,[30,58,138]]],
+   neg:[[0,[252,165,165]],[.15,[248,113,113]],[.40,[239,68,68]],[.72,[185,28,28]],[1,[127,29,29]]]
  };
- for(const k of near){
-   for(const b of buckets) registerMagnitude(bucketTotals.get(b)?.get(k)||0);
-   registerMagnitude(strikeTotals.get(k)||0);
- }
- const intensity=v=>{
+ const gexRGB=(stops,t)=>{
+   for(let i=1;i<stops.length;i++){
+     if(t<=stops[i][0]){
+       const [t0,c0]=stops[i-1],[t1,c1]=stops[i],f=(t-t0)/(t1-t0);
+       return c0.map((x,j)=>Math.round(x+(c1[j]-x)*f));
+     }
+   }
+   return stops[stops.length-1][1];
+ };
+ const intensity=(v,max)=>{
    const a=Math.abs(v);
-   // Preserve the existing zero-cell background and its dark neutral color.
    if(a<50000)return '';
-   // Normalize against the actual visible data range, not against zero.
-   // This avoids nearly identical shades when GEX values are several orders apart.
-   let ratio;
-   if(!Number.isFinite(minAbs)||maxAbs<=minAbs) ratio=0.72;
-   else ratio=Math.log(a/minAbs)/Math.log(maxAbs/minAbs);
-   ratio=Math.max(0,Math.min(1,ratio));
-   // Expand contrast: low GEX stays light, high GEX becomes distinctly dark.
-   const strength=Math.pow(ratio,0.72);
-   const light=v>0?(63-43*strength):(60-40*strength);
-   const background=v>0
-     ? 'hsl(211,76%,'+light.toFixed(1)+'%)'
-     : 'hsl(0,66%,'+light.toFixed(1)+'%)';
-   const foreground=strength<0.32?(v>0?'#12253b':'#401719'):'#ffffff';
-   return 'background:'+background+';color:'+foreground+';';
+   const t=max>0?Math.max(0,Math.min(1,a/max)):1;
+   const rgb=gexRGB(v>0?GEX_STOPS.pos:GEX_STOPS.neg,t);
+   const lum=0.299*rgb[0]+0.587*rgb[1]+0.114*rgb[2];
+   const foreground=lum>140?(v>0?'#0b1d36':'#3b0d0d'):'#ffffff';
+   return 'background:rgb('+rgb.join(',')+');color:'+foreground+';';
  };
  let html='<thead><tr><th>Level</th><th>Strike</th>'+buckets.map(b=>'<th>'+b+'d</th>').join('')+'<th>Net</th><th class=\"profile-heading\" title=\"Visual profile of Net GEX magnitude per strike; green positive, red negative\">Net Profile</th></tr></thead><tbody>';
  near=near.slice().sort((a,b)=>b-a);
@@ -218,7 +215,7 @@ function render(){
    for(const b of buckets){
      const v=bucketTotals.get(b)?.get(k)||0;rowNet+=v;
      const cls=Math.abs(v)<50000?'zero':v>0?'pos':'neg';
-     cells+='<td class="cell '+cls+'" style="'+intensity(v)+'" title="'+b+'d · $'+k.toLocaleString('en-US')+' · '+v.toLocaleString('en-US',{maximumFractionDigits:0})+' USD">'+fmtCell(v)+'</td>';
+     cells+='<td class="cell '+cls+'" style="'+intensity(v,maxCell)+'" title="'+b+'d · $'+k.toLocaleString('en-US')+' · '+v.toLocaleString('en-US',{maximumFractionDigits:0})+' USD">'+fmtCell(v)+'</td>';
    }
    const netCls=Math.abs(rowNet)<50000?'zero':rowNet>0?'pos':'neg';
    const label=k===callRow?'CALL':k===putRow?'PUT':(flipRow!==null&&k===flipRow?'FLIP':'');
@@ -229,7 +226,7 @@ function render(){
    const profileSign=rowNet>0?'positive':rowNet<0?'negative':'neutral';
    const profileTitle='Net GEX: '+(rowNet>0?'+':'')+rowNet.toLocaleString('en-US',{maximumFractionDigits:0})+' USD per 1% move · '+(rowNet>0?'positive':rowNet<0?'negative':'near zero');
    const profileBar=netRatio>0?'<span class="net-profile-bar '+profileSign+'" data-ratio="'+netRatio.toFixed(5)+'" style="width:'+(netRatio*100).toFixed(2)+'%"></span>':'';
-   html+='<tr><td class="level-label '+labelClass+'">'+label+'</td><th>$'+k.toLocaleString('en-US',{maximumFractionDigits:currency==='BTC'?0:2})+'</th>'+cells+'<td class="cell net '+netCls+'" style="'+intensity(rowNet)+'">'+fmtCell(rowNet)+'</td><td class="profile-cell" title="'+profileTitle+'"><div class="profile-track">'+profileBar+'</div></td></tr>';
+   html+='<tr><td class="level-label '+labelClass+'">'+label+'</td><th>$'+k.toLocaleString('en-US',{maximumFractionDigits:currency==='BTC'?0:2})+'</th>'+cells+'<td class="cell net '+netCls+'" style="'+intensity(rowNet,visibleNetMax)+'">'+fmtCell(rowNet)+'</td><td class="profile-cell" title="'+profileTitle+'"><div class="profile-track">'+profileBar+'</div></td></tr>';
  }
  if(!spotInserted&&spot){
    html+='<tr class="spot-row"><th></th><th>$'+spot.toLocaleString('en-US',{maximumFractionDigits:currency==='BTC'?0:2})+'</th><td colspan="'+(buckets.length+2)+'">'+currency+' spot · $'+spot.toLocaleString('en-US',{maximumFractionDigits:currency==='BTC'?0:2})+'</td></tr>';
