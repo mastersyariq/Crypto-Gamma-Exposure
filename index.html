@@ -14,13 +14,13 @@ h1{font-size:17px;margin:0;font-weight:750;letter-spacing:.01em}.subtitle{color:
 .controls{display:flex;gap:9px;align-items:center;flex-wrap:wrap}.pill,.btn,select{border:1px solid #343a44;background:#1b2027;color:#dbe1e9;border-radius:7px;padding:8px 10px;font:inherit}.btn{cursor:pointer}.btn:hover{background:#262d37}.status{display:flex;align-items:center;gap:7px;color:var(--muted);font-size:11px}.dot{width:7px;height:7px;border-radius:50%;background:#d6a348}.dot.ok{background:#43c79b}.dot.bad{background:#e05b5b}
 main{padding:16px 20px 24px;max-width:1600px;margin:auto}.summary{display:grid;grid-template-columns:repeat(4,minmax(130px,1fr));gap:10px;margin-bottom:14px}.metric{background:var(--panel);border:1px solid var(--grid);border-radius:9px;padding:12px 14px;min-height:74px}.metric label{display:block;color:var(--muted);font-size:11px;margin-bottom:7px}.metric strong{font-size:18px;font-variant-numeric:tabular-nums}.metric small{color:var(--muted);font-size:10px;margin-left:5px}
 .panel{border:1px solid var(--grid);border-radius:10px;overflow:hidden;background:#14171b}.panel-head{padding:13px 15px;border-bottom:1px solid var(--grid);display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}.panel-head h2{font-size:13px;margin:0;font-weight:700}.legend{display:flex;gap:12px;color:var(--muted);font-size:10px;align-items:center}.swatch{display:inline-block;width:9px;height:9px;border-radius:2px;margin-right:4px}.table-wrap{overflow:auto;max-height:calc(100vh - 270px);min-height:360px}table{border-collapse:separate;border-spacing:2px;width:100%;min-width:850px;font-variant-numeric:tabular-nums}thead th{position:sticky;top:0;z-index:2;background:#14171b;color:#8e949d;font-size:10px;font-weight:600;padding:8px 7px;text-align:center;white-space:nowrap}thead th:first-child{left:0;z-index:4;text-align:right;min-width:78px}tbody th{position:sticky;left:0;z-index:1;background:#191c20;text-align:right;padding:6px 8px;color:#c7ccd3;font-size:11px;font-weight:600;white-space:nowrap;border-radius:3px}td{height:29px;min-width:48px;text-align:center;padding:5px 5px;border-radius:3px;font-size:10px;color:#d9e1eb;white-space:nowrap}.cell.zero{background:#1b1e22;color:#777d85}.cell.pos{background:#2c5686}.cell.neg{background:#793b3d}.cell.empty{background:#1a1d21;color:#5e646c}.net{font-weight:750;min-width:70px}
-.volume-heading{min-width:110px;width:110px;text-align:center}
-.volume-cell{min-width:110px;width:110px;background:#171a1f;padding:4px 7px}
-.volume-track{width:100%;height:10px;background:#252a30;border-radius:2px;overflow:hidden;box-shadow:inset 0 0 0 1px #343a42}
-.volume-bar{display:block;height:100%;min-width:2px;border-radius:2px;transition:width .15s ease}
-.volume-bar.positive{background:#16c784;box-shadow:0 0 5px rgba(22,199,132,.22)}
-.volume-bar.negative{background:#ea3943;box-shadow:0 0 5px rgba(234,57,67,.22)}
-.volume-bar.neutral{background:#8c939d}
+.profile-heading{min-width:110px;width:110px;text-align:center}
+.profile-cell{min-width:110px;width:110px;background:#171a1f;padding:4px 7px}
+.profile-track{width:100%;height:10px;background:#252a30;border-radius:2px;overflow:hidden;box-shadow:inset 0 0 0 1px #343a42}
+.net-profile-bar{display:block;height:100%;min-width:2px;border-radius:2px;transition:width .15s ease}
+.net-profile-bar.positive{background:#16c784;box-shadow:0 0 5px rgba(22,199,132,.22)}
+.net-profile-bar.negative{background:#ea3943;box-shadow:0 0 5px rgba(234,57,67,.22)}
+.net-profile-bar.neutral{background:#8c939d}
 
 .level-label{position:sticky;left:0;background:#14171b;text-align:right;padding:4px 5px;width:45px;min-width:45px;font-size:9px;font-weight:800;letter-spacing:.04em;color:#aeb6c2}
 .level-label.call{color:#77b8ff}.level-label.put{color:#ff8e8e}.level-label.flip{color:#e4c66d}
@@ -47,7 +47,7 @@ main{padding:16px 20px 24px;max-width:1600px;margin:auto}.summary{display:grid;g
     <div class="metric"><label>PUT GEX</label><strong id="puts">—</strong><small>Gamma negatif</small></div>
   </section>
   <section class="panel">
-    <div class="panel-head"><h2>Gamma Exposure by Strike & Expiration</h2><div class="legend"><span><i class="swatch" style="background:#2c5686"></i>Positive GEX</span><span><i class="swatch" style="background:#793b3d"></i>Negative GEX</span><span>GEX: USD · Volume traded: USD / 24h</span><button id="copyImage" class="btn" type="button" title="Copy seluruh tabel GEX sebagai gambar">▧ Copy as Image</button></div></div>
+    <div class="panel-head"><h2>Gamma Exposure by Strike & Expiration</h2><div class="legend"><span><i class="swatch" style="background:#2c5686"></i>Positive GEX</span><span><i class="swatch" style="background:#793b3d"></i>Negative GEX</span><span>GEX: USD · Net Profile: magnitudo Net GEX per strike</span><button id="copyImage" class="btn" type="button" title="Copy seluruh tabel GEX sebagai gambar">▧ Copy as Image</button></div></div>
     <div class="table-wrap"><table id="heatmap"><thead><tr><th>Strike</th></tr></thead><tbody><tr><td class="loading">Mengambil data options dari Deribit…</td></tr></tbody></table></div>
   </section>
   <div class="foot"><span id="updated">Menunggu data pertama…</span><span id="copyStatus" aria-live="polite">Source: wss://www.deribit.com/ws/api/v2 · Read-only public API</span></div>
@@ -111,7 +111,7 @@ async function loadData(){
    const meta=new Map();
    for(const it of instruments||[]){meta.set(it.instrument_name,{strike:it.strike,option_type:it.option_type,expiration_timestamp:it.expiration_timestamp,kind:it.kind});}
    const sumMap=new Map((summaries||[]).map(s=>[s.instrument_name,s]));
-   const bucketTotals=new Map(), strikeTotals=new Map(), volumeTotals=new Map();let callG=0,putG=0,used=0;
+   const bucketTotals=new Map(), strikeTotals=new Map();let callG=0,putG=0,used=0;
    const allStrikes=[];
    for(const [name,s] of sumMap){
      const m=meta.get(name); if(!m||!s||!m.expiration_timestamp)continue;
@@ -119,10 +119,6 @@ async function loadData(){
      const b=bucketFor(days); const S=Number(s.underlying_price)||spot;
      const K=Number(m.strike), oi=Number(s.open_interest)||0;
      if(!(S>0&&K>0))continue;
-     // Aggregate Deribit 24h traded option volume per strike. Prefer USD volume;
-     // fall back to underlying volume × underlying price when volume_usd is absent.
-     const volumeUsd = Number(s.volume_usd) || ((Number(s.volume)||0) * S);
-     volumeTotals.set(K,(volumeTotals.get(K)||0)+Math.max(0,volumeUsd));
      // Deribit mark_iv is expressed in percentage points (e.g. 55 means 55%).
      let iv=Number(s.mark_iv); if(!iv||iv>5)iv/=100;
      if(!(iv>0&&iv<5))iv=0.65;
@@ -139,7 +135,7 @@ async function loadData(){
      allStrikes.push(K);used++;
    }
    if(!used)throw new Error('Data option diterima, tetapi tidak ada open interest/IV yang bisa dihitung.');
-   lastData={bucketTotals,strikeTotals,volumeTotals,allStrikes:[...new Set(allStrikes)].sort((a,b)=>a-b),used,callG,putG};
+   lastData={bucketTotals,strikeTotals,allStrikes:[...new Set(allStrikes)].sort((a,b)=>a-b),used,callG,putG};
    render();setStatus('Live · '+used.toLocaleString('en-US')+' kontrak dihitung','ok');
    document.querySelector('.metric label').textContent=currency+' SPOT';
    $('spot').textContent=spot?'$'+spot.toLocaleString('en-US',{maximumFractionDigits:currency==='BTC'?0:2}):'—';
@@ -151,7 +147,7 @@ async function loadData(){
 }
 function render(){
  if(!lastData)return;
- const {bucketTotals,strikeTotals,volumeTotals,allStrikes}=lastData;
+ const {bucketTotals,strikeTotals,allStrikes}=lastData;
  const count=Number($('range').value);
  const strikes=allStrikes.filter(k=>Math.abs(k-spot)<=spot*0.22).sort((a,b)=>a-b);
  let near=strikes;
@@ -161,7 +157,7 @@ function render(){
  }
  if(!near.length)near=allStrikes.slice(-count*2-1);
  const buckets=EXPIRY_BUCKETS;
- const visibleVolumeMax=Math.max(0,...near.map(k=>volumeTotals?.get(k)||0));
+ const visibleNetMax=Math.max(0,...near.map(k=>Math.abs(strikeTotals.get(k)||0)));
  // Estimate key levels from total GEX by strike: largest positive = call wall,
  // most negative = put wall; flip = closest zero-crossing of cumulative GEX.
  const sortedAll=allStrikes.slice().sort((a,b)=>a-b);
@@ -210,7 +206,7 @@ function render(){
    const foreground=strength<0.32?(v>0?'#12253b':'#401719'):'#ffffff';
    return 'background:'+background+';color:'+foreground+';';
  };
- let html='<thead><tr><th>Level</th><th>Strike</th>'+buckets.map(b=>'<th>'+b+'d</th>').join('')+'<th>Net</th><th class=\"volume-heading\" title=\"Total traded option volume, last 24 hours (USD)\">Volume 24h</th></tr></thead><tbody>';
+ let html='<thead><tr><th>Level</th><th>Strike</th>'+buckets.map(b=>'<th>'+b+'d</th>').join('')+'<th>Net</th><th class=\"profile-heading\" title=\"Visual profile of Net GEX magnitude per strike; green positive, red negative\">Net Profile</th></tr></thead><tbody>';
  near=near.slice().sort((a,b)=>b-a);
  let spotInserted=false;
  for(const k of near){
@@ -227,12 +223,13 @@ function render(){
    const netCls=Math.abs(rowNet)<50000?'zero':rowNet>0?'pos':'neg';
    const label=k===callRow?'CALL':k===putRow?'PUT':(flipRow!==null&&k===flipRow?'FLIP':'');
    const labelClass=label.toLowerCase();
-   const volumeUsd=volumeTotals?.get(k)||0;
-   const volumeRatio=visibleVolumeMax>0&&volumeUsd>0?Math.max(0.025,Math.sqrt(volumeUsd/visibleVolumeMax)):0;
+   // Net Profile is a bar-chart rendering of the exact same rowNet shown in Net.
+   // Its width represents absolute net GEX; color represents its sign.
+   const netRatio=visibleNetMax>0&&Math.abs(rowNet)>=50000?Math.max(0.025,Math.sqrt(Math.abs(rowNet)/visibleNetMax)):0;
    const profileSign=rowNet>0?'positive':rowNet<0?'negative':'neutral';
-   const volumeTitle='24h option volume: $'+volumeUsd.toLocaleString('en-US',{maximumFractionDigits:0})+' USD · net GEX '+(rowNet>0?'positive':rowNet<0?'negative':'near zero');
-   const volumeBar=volumeRatio>0?'<span class="volume-bar '+profileSign+'" data-ratio="'+volumeRatio.toFixed(5)+'" style="width:'+(volumeRatio*100).toFixed(2)+'%"></span>':'';
-   html+='<tr><td class="level-label '+labelClass+'">'+label+'</td><th>$'+k.toLocaleString('en-US',{maximumFractionDigits:currency==='BTC'?0:2})+'</th>'+cells+'<td class="cell net '+netCls+'" style="'+intensity(rowNet)+'">'+fmtCell(rowNet)+'</td><td class="volume-cell" title="'+volumeTitle+'"><div class="volume-track">'+volumeBar+'</div></td></tr>';
+   const profileTitle='Net GEX: '+(rowNet>0?'+':'')+rowNet.toLocaleString('en-US',{maximumFractionDigits:0})+' USD per 1% move · '+(rowNet>0?'positive':rowNet<0?'negative':'near zero');
+   const profileBar=netRatio>0?'<span class="net-profile-bar '+profileSign+'" data-ratio="'+netRatio.toFixed(5)+'" style="width:'+(netRatio*100).toFixed(2)+'%"></span>':'';
+   html+='<tr><td class="level-label '+labelClass+'">'+label+'</td><th>$'+k.toLocaleString('en-US',{maximumFractionDigits:currency==='BTC'?0:2})+'</th>'+cells+'<td class="cell net '+netCls+'" style="'+intensity(rowNet)+'">'+fmtCell(rowNet)+'</td><td class="profile-cell" title="'+profileTitle+'"><div class="profile-track">'+profileBar+'</div></td></tr>';
  }
  if(!spotInserted&&spot){
    html+='<tr class="spot-row"><th></th><th>$'+spot.toLocaleString('en-US',{maximumFractionDigits:currency==='BTC'?0:2})+'</th><td colspan="'+(buckets.length+2)+'">'+currency+' spot · $'+spot.toLocaleString('en-US',{maximumFractionDigits:currency==='BTC'?0:2})+'</td></tr>';
@@ -284,14 +281,14 @@ function drawHeatmapImage(){
      }
      const x=pad+colWidths.slice(0,col).reduce((a,b)=>a+b,0)+gap*col;
      ctx.fillStyle=bg;roundedRect(ctx,x,y,w,h,Math.min(3,parseFloat(cs.borderRadius)||0));ctx.fill();
-     // Draw the volume profile into the export canvas as real pixels, not as DOM-only styling.
-     const volumeBar=cell.querySelector('.volume-bar');
-     if(volumeBar){
+     // Draw the Net GEX profile into the export canvas as real pixels, not as DOM-only styling.
+     const profileBar=cell.querySelector('.net-profile-bar');
+     if(profileBar){
        const trackX=x+7, trackW=Math.max(0,w-14), trackH=10, trackY=y+(h-trackH)/2;
        ctx.fillStyle='#252a30';roundedRect(ctx,trackX,trackY,trackW,trackH,2);ctx.fill();
-       const ratio=Math.max(0,Math.min(1,Number(volumeBar.dataset.ratio)||0));
+       const ratio=Math.max(0,Math.min(1,Number(profileBar.dataset.ratio)||0));
        if(ratio>0){
-         ctx.fillStyle=volumeBar.classList.contains('positive')?'#16c784':volumeBar.classList.contains('negative')?'#ea3943':'#8c939d';
+         ctx.fillStyle=profileBar.classList.contains('positive')?'#16c784':profileBar.classList.contains('negative')?'#ea3943':'#8c939d';
          roundedRect(ctx,trackX,trackY,Math.max(2,trackW*ratio),trackH,2);ctx.fill();
        }
      }
